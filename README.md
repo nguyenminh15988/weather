@@ -58,29 +58,30 @@ The goal of this project is to build a weather forecasting platform that:
 
 ---
 ### Folder Structure
-max-weather/
-├── terraform/ # Terraform scripts for infrastructure setup
-│   ├── main.tf # Main Terraform configuration
-│   ├── variables.tf # Terraform variables
-│   ├── outputs.tf # Terraform outputs
-│   ├── modules/ # Terraform modules
-│   │   ├── eks/ # EKS cluster module
-│   │   ├── vpc/ # VPC module
-│   │   ├── alb/ # Application Load Balancer module
-│   │   ├── cloudwatch/ # CloudWatch module
-│   │   └── lambda-authorizer/ # Lambda Authorizer module
-│
-├── kubernetes/ # Kubernetes manifests
-│   ├── namespace.yaml # Namespace for the application
-│   ├── secret.yaml # Kubernetes secret for sensitive data
-│   ├── deployment.yaml # Deployment for the weather application
-│   ├── service.yaml # Service to expose the application
-│   ├── ingress.yaml # Ingress for external traffic
-│
-├── jenkins/ # Jenkins pipeline scripts
-│   └── Jenkinsfile # Jenkins pipeline script
-├── App/ # App using google api weather
-│   └── app.py 
+   ```bash
+   max-weather/
+   ├── terraform/ # Terraform scripts for infrastructure setup
+   │   ├── main.tf # Main Terraform configuration
+   │   ├── variables.tf # Terraform variables
+   │   ├── outputs.tf # Terraform outputs
+   │   ├── modules/ # Terraform modules
+   │   │   ├── eks/ # EKS cluster module
+   │   │   ├── vpc/ # VPC module
+   │   │   ├── alb/ # Application Load Balancer module
+   │   │   ├── cloudwatch/ # CloudWatch module
+   │   │   └── lambda-authorizer/ # Lambda Authorizer module
+   │
+   ├── kubernetes/ # Kubernetes manifests
+   │   ├── namespace.yaml # Namespace for the application
+   │   ├── secret.yaml # Kubernetes secret for sensitive data
+   │   ├── deployment.yaml # Deployment for the weather application
+   │   ├── service.yaml # Service to expose the application
+   │   ├── ingress.yaml # Ingress for external traffic
+   │
+   ├── jenkins/ # Jenkins pipeline scripts
+   │   └── Jenkinsfile # Jenkins pipeline script
+   ├── App/ # App using google api weather
+   │   └── app.py 
 
 
 ## Setup Instructions
@@ -88,7 +89,7 @@ max-weather/
 ### Terraform Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/max-weather.git
+   git clone https://github.com/nguyenminh15988/weather
    cd max-weather/terraform
 
 ## Setup Instructions
