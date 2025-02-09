@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        ECR_REPO              = 'ecr-repo-url'
+        KUBECONFIG            = 'kubeconfig.yaml'
+        CLUSTER_NAME          = 'max-weather-cluster'
+        REGION                = 'us-east-1'
+    }
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo "Building Docker image..."
+                    sh 'docker build -t ${ECR_REPO}:latest .'
+                }
+            }
+        }
+        stage('Push to ECR') {
+            steps {
+                script {
+                    echo "Logging into ECR..."
+                    sh '''
+                        aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
+                    '''
+                    echo "Tagging and pushing Docker image..."
+                    sh '''
+                        docker tag ${ECR_REPO}:latest ${ECR_REPO}:latest
+                        docker push ${ECR_REPO}:latest
+                    '''
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "Updating kubeconfig..."
+                    sh '''
+                        aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${REGION}
+                    '''
+                    echo "Deploying application to Kubernetes..."
+                    sh '''
+                        kubectl apply -f kubernetes/namespace.yaml
+                        kubectl apply -f kubernetes/secret.yaml
+                        kubectl apply -f kubernetes/deployment.yaml
+                        kubectl apply -f kubernetes/service.yaml
+                        kubectl apply -f kubernetes/ingress.yaml
+                    '''
+                }
+            }
+        }
+        stage('Deploy to AWS API Gateway') {
+            steps {
+                script {
+                    echo "Deploying API to AWS API Gateway..."
+                    sh '''
+                        # Create API Gateway
+                        aws apigateway create-rest-api --name 'Weather API' --region ${REGION}
+
+                        # Get API ID
+                        API_ID=$(aws apigateway get-rest-apis --query "items[?name=='Weather API'].id" --output text --region ${REGION})
+
+                        # Create Resource
+                        PARENT_ID=$(aws apigateway get-resources --rest-api-id ${API_ID} --query "items[?path=='/'].id" --output text --region ${REGION})
+                        aws apigateway create-resource --rest-api-id ${API_ID} --parent-id ${PARENT_ID} --path-part 'weather' --region ${REGION}
+
+                        # Create GET Method
+                        RESOURCE_ID=$(aws apigateway get-resources --rest-api-id ${API_ID} --query "items[?path=='/weather'].id" --output text --region ${REGION})
+                        aws apigateway put-method --rest-api-id ${API_ID} --resource-id ${RESOURCE_ID} --http-method GET --authorization-type NONE --region ${REGION}
+
+                        # Integrate with Kubernetes Service
+                        aws apigateway put-integration --rest-api-id ${API_ID} --resource-id ${RESOURCE_ID} --http-method GET --type HTTP_PROXY --integration-http-method GET --uri 'http://<ingress-ip>/weather' --region ${REGION}
+
+                        # Deploy API
+                        aws apigateway create-deployment --rest-api-id ${API_ID} --stage-name prod --region ${REGION}
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
+}
