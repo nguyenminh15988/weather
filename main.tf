@@ -20,6 +20,12 @@ module "vpc" {
   availability_zones = ["us-west-2a", "us-west-2b"]
 }
 
+module "apigateway" {
+  source         = "./modules/apigateway"
+  backend_endpoint = "http://${module.alb.alb_dns_name}/weather"  # Replace with your ALB/Nginx endpoint
+  authorizer_id  = module.lambda_authorizer.authorizer_id
+}
+
 module "eks" {
   source = "./modules/eks"
   vpc_id = module.vpc.vpc_id
