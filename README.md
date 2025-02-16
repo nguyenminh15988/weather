@@ -58,7 +58,7 @@ The goal of this project is to build a weather forecasting platform that:
 
 ---
 ### Folder Structure
-   ```bash
+
    max-weather/
    ├── terraform/ # Terraform scripts for infrastructure setup
    │   ├── main.tf # Main Terraform configuration
@@ -69,7 +69,8 @@ The goal of this project is to build a weather forecasting platform that:
    │   │   ├── vpc/ # VPC module
    │   │   ├── alb/ # Application Load Balancer module
    │   │   ├── cloudwatch/ # CloudWatch module
-   │   │   └── lambda-authorizer/ # Lambda Authorizer module
+   │   │   ├── lambda-authorizer/ 
+   │   │   └── apigateway/ 
    │
    ├── kubernetes/ # Kubernetes manifests
    │   ├── namespace.yaml # Namespace for the application
@@ -136,6 +137,9 @@ The goal of this project is to build a weather forecasting platform that:
 - Import the weather-api.postman_collection.json file into Postman.
 - Set the environment variables (base_url, api_key).
 - Run the collection to test the API with proper authentication.
+
+# Tested result 
+![Testing result](image-1.png)
 
 # Cleanup
 ## Destroy Terraform Resources

@@ -32,6 +32,9 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
   cluster_name = var.cluster_name
   cluster_role_arn = var.cluster_role_arn
+  desired_size = 2 
+  max_size     = 10
+  min_size     = 1
 }
 module "alb" {
   source     = "./modules/alb"

@@ -13,8 +13,11 @@ resource "aws_eks_node_group" "nodes" {
   subnet_ids      = var.subnet_ids
   scaling_config {
     desired_size = 2
-    max_size     = 5
+    max_size     = 10
     min_size     = 1
+  }
+  update_config {
+    max_unavailable = 1 # Number of nodes that can be unavailable during updates
   }
 }
 
